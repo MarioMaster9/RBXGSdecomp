@@ -168,10 +168,10 @@ namespace RBX
 		}
 	}
 
-	// 100% match if isSpanningJoint has __forceinline
 	void Clump::renumberSpanTree(Primitive* onTree)
 	{
-		for (RigidJoint* r = onTree->getFirstRigid(); r != NULL; r = onTree->getNextRigid(r))
+		RigidJoint* r = onTree->getFirstRigid();
+		while (r != NULL)
 		{
 			Primitive* p = SpanLink::isSpanningJoint(r);
 
@@ -181,6 +181,7 @@ namespace RBX
 				other->setClumpDepth(onTree->getClumpDepth() + 1);
 				renumberSpanTree(other);
 			}
+			r = onTree->getNextRigid(r);
 		}
 	}
 
