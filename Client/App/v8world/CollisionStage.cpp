@@ -224,7 +224,8 @@ namespace RBX
 
 	int CollisionStage::getMetric(MetricType metricType)
 	{
-		switch (metricType) {
+		switch (metricType)
+		{
 		case NUM_CONTACTSTAGE_CONTACTS:
 			return numContactsInStage;
 		case NUM_STEPPING_CONTACTS:
