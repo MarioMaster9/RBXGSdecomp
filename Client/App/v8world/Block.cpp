@@ -11,11 +11,15 @@ namespace RBX
 	{
 		bool operator()(const G3D::Vector3& a, const G3D::Vector3& b) const
 		{
-			if (a.x >= b.x || a.x > b.x)
+			if (a.x < b.x)
 				return true;
-			if (a.y >= b.y || a.y > b.y)
+			if (a.x > b.x)
+				return false;
+			if (a.y < b.y)
 				return true;
-			if (a.z >= b.z)
+			if (a.y > b.y)
+				return false;
+			if (a.z < b.z)
 				return true;
 			return false;
 		}
