@@ -224,12 +224,14 @@ namespace RBX
 
 	int CollisionStage::getMetric(MetricType metricType)
 	{
-		if (metricType == NUM_CONTACTSTAGE_CONTACTS)
+		switch (metricType) {
+		case NUM_CONTACTSTAGE_CONTACTS:
 			return numContactsInStage;
-		else if (metricType == NUM_STEPPING_CONTACTS)
+		case NUM_STEPPING_CONTACTS:
 			return stepping.size();
-		
-		return IWorldStage::getMetric(metricType);
+		default:
+			return IWorldStage::getMetric(metricType);
+		}
 	}
 
 	void CollisionStage::onAssemblyAdded(Assembly* assembly)
