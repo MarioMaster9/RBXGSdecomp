@@ -107,12 +107,13 @@ namespace RBX
 		return false;
 	}
 
-	// 66% match if isSpanningJoint has __forceinline
 	SpanLink Clump::findBestOutsideLink(Primitive* treeRoot, Primitive* current)
 	{
+		SpanLink outsideTree;
 		SpanLink bestChildLink;
 
-		for (RigidJoint* r = current->getFirstRigid(); r != NULL; r = current->getNextRigid(r))
+		RigidJoint* r = current->getFirstRigid();
+		while (r != NULL)
 		{
 			Primitive* other = r->otherPrimitive(current);
 			Primitive* prim = SpanLink::isSpanningJoint(r);
@@ -121,20 +122,22 @@ namespace RBX
 			{
 				if (prim == current)
 				{
-					bestChildLink = SpanLink::bestSpanLink(bestChildLink, findBestOutsideLink(treeRoot, other));
+					outsideTree = findBestOutsideLink(treeRoot, other);
+					bestChildLink = SpanLink::bestSpanLink(bestChildLink, outsideTree);
 				}
 			}
 			else
 			{
 				if (other->getClump() == current->getClump())
 				{
-					if (inSpanTree(other, treeRoot))
+					if (!inSpanTree(other, treeRoot))
 					{
-						SpanLink outsideTree(other, r);
+						outsideTree = SpanLink(other, r);
 						bestChildLink = SpanLink::bestSpanLink(bestChildLink, outsideTree);
 					}
 				}
 			}
+			r = current->getNextRigid(r);
 		}
 
 		return bestChildLink;
