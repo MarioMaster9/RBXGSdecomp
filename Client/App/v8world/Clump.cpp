@@ -107,12 +107,12 @@ namespace RBX
 		return false;
 	}
 
-	// 66% match if isSpanningJoint has __forceinline
 	SpanLink Clump::findBestOutsideLink(Primitive* treeRoot, Primitive* current)
 	{
 		SpanLink bestChildLink;
 
-		for (RigidJoint* r = current->getFirstRigid(); r != NULL; r = current->getNextRigid(r))
+		RigidJoint* r = current->getFirstRigid();
+		while (r != NULL)
 		{
 			Primitive* other = r->otherPrimitive(current);
 			Primitive* prim = SpanLink::isSpanningJoint(r);
@@ -121,20 +121,22 @@ namespace RBX
 			{
 				if (prim == current)
 				{
-					bestChildLink = SpanLink::bestSpanLink(bestChildLink, findBestOutsideLink(treeRoot, other));
+					SpanLink outsideTree = findBestOutsideLink(treeRoot, other);
+					bestChildLink = SpanLink::bestSpanLink(bestChildLink, outsideTree);
 				}
 			}
 			else
 			{
 				if (other->getClump() == current->getClump())
 				{
-					if (inSpanTree(other, treeRoot))
+					if (!inSpanTree(other, treeRoot))
 					{
 						SpanLink outsideTree(other, r);
 						bestChildLink = SpanLink::bestSpanLink(bestChildLink, outsideTree);
 					}
 				}
 			}
+			r = current->getNextRigid(r);
 		}
 
 		return bestChildLink;
@@ -241,13 +243,17 @@ namespace RBX
 		RBXASSERT(primitives.size() > 0);
 		if (_set != sleepStatus)
 		{
-			if (_set == Sim::AWAKE)
+			switch (_set)
 			{
+			case Sim::AWAKE:
 				getRootBody()->resetAccumulators();
-			}
-			else if (_set == Sim::SLEEPING_CHECKING || _set == Sim::SLEEPING_DEEPLY)
-			{
+				break;
+			case Sim::SLEEPING_CHECKING:
 				getRootBody()->setVelocity(Velocity::zero());
+				break;
+			case Sim::SLEEPING_DEEPLY:
+				getRootBody()->setVelocity(Velocity::zero());
+				break;
 			}
 
 			sleepStatus = _set;
@@ -443,10 +449,12 @@ namespace RBX
 			{
 				if (r->getPrimitive(0)->getClump() == this && r->getPrimitive(1)->getClump() == this)
 				{
+					SCOPED(
 					if (internalRigids.insert(r).second)
 					{
 						deque.push_back(r->otherPrimitive(p));
 					}
+					);
 				}
 				else
 				{

@@ -18,16 +18,12 @@ namespace RBX
 				const size_t index;
 			  
 			public:
-				//Item(const Item&);
 				Item(const char* name, int value, size_t index)
 					: Descriptor(name),
 					  value(value),
 					  index(index)
 				{
 				}
-				virtual ~Item() {}
-			public:
-				//Item& operator=(const Item&);
 			};
 
 		protected:
@@ -35,8 +31,6 @@ namespace RBX
 			size_t enumCount;
 			size_t enumCountMSB;
 		
-		public:
-			//EnumDescriptor(const EnumDescriptor&);
 		protected:
 			EnumDescriptor(const char* typeName, const type_info& type);
 			virtual ~EnumDescriptor();
@@ -62,7 +56,6 @@ namespace RBX
 			{
 				return std::find_if(begin(), end(), boost::bind(&equalValue, _1, intValue)) != end();
 			}
-			//EnumDescriptor& operator=(const EnumDescriptor&);
 		  
 		public:
 			static std::vector<const EnumDescriptor*>::const_iterator enumsBegin()
@@ -94,18 +87,15 @@ namespace RBX
 			std::vector<Enum> indexToEnum;
 			std::vector<size_t> enumToIndex;
 		  
-		public:
-			//EnumDesc(const EnumDesc&);
 		private:
 			EnumDesc();
 		private:
 			virtual ~EnumDesc() {}
 
 		private:
-			void addPair(Enum value, const char* name) // TODO: not 100% match
+			void addPair(Enum value, const char* name)
 			{
-				size_t index = enumCount;
-				Item* item = new Item(name, value, index);
+				Item* item = new Item(name, value, enumCount);
 				allItems.push_back(item);
 
 				RBXASSERT(value>=0);
@@ -113,7 +103,7 @@ namespace RBX
 
 				if (enumToIndex.size() <= (size_t)value)
 					enumToIndex.resize(value + 1, -1);
-				enumToIndex[value] = index;
+				enumToIndex[value] = enumCount;
 
 				indexToEnum.push_back(value);
 
@@ -122,7 +112,7 @@ namespace RBX
 				enumToName[value] = &item->name;
 
 				if (enumToString.size() <= (size_t)value)
-					enumToString.resize(value + 1, std::string());
+					enumToString.resize(value + 1);
 				enumToString[value] = name;
 
 				nameToEnum[&item->name] = value;
@@ -132,7 +122,7 @@ namespace RBX
 				enumCount++;
 
 				size_t newEnumCountMCB = -1;
-				for (size_t i = enumCount; i != 0; ++newEnumCountMCB)
+				for (size_t i = enumCount; i > 0; ++newEnumCountMCB)
 					i >>= 1;
 				enumCountMSB = newEnumCountMCB;
 			}
@@ -199,7 +189,6 @@ namespace RBX
 					return enumToIndex[value];
 				return -1;
 			}
-			//EnumDesc& operator=(const EnumDesc&);
 		  
 		public:
 			static const EnumDesc& singleton()
